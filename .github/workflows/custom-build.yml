@@ -13,15 +13,15 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Inject custom server & public key (PowerShell版本，Windows环境)
+      - name: Inject custom server & public key (PowerShell)
         run: |
           $filePath = "libs/hbb_common/src/config.rs"
           $content = Get-Content $filePath -Raw
-          #替换ID服务器
           $content = $content -replace 'pub const RENDEZVOUS_SERVERS: &\[&str\] = &\[.*\];', "pub const RENDEZVOUS_SERVERS: &[&str] = &[\"${{ secrets.RENDEZVOUS_SERVER }}\"];"
-          #替换公钥
           $content = $content -replace 'pub const RS_PUB_KEY: &str = ".*";', "pub const RS_PUB_KEY: &str = `"${{ secrets.RS_PUB_KEY }}`";"
           Set-Content $filePath $content
+          # 打印出来校验替换结果
+          Get-Content $filePath
         shell: pwsh
 
       - name: Setup Flutter
@@ -33,7 +33,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Build RustDesk Windows
+      - name: Build Windows RustDesk
         run: |
           cd flutter
           flutter pub get
