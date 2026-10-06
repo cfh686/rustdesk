@@ -16,9 +16,16 @@ jobs:
       - name: Inject custom server & public key (PowerShell)
         run: |
           $filePath = "libs/hbb_common/src/config.rs"
+          $rendezvousServer = "${{ secrets.RENDEZVOUS_SERVER }}"
+          $rsPubKey = "${{ secrets.RS_PUB_KEY }}"
           $content = Get-Content $filePath -Raw
-          $content = $content -replace 'pub const RENDEZVOUS_SERVERS: &\[&str\] = &\[.*\];', 'pub const RENDEZVOUS_SERVERS: &[&str] = &["' + "${{ secrets.RENDEZVOUS_SERVER }}" + '"];'
-          $content = $content -replace 'pub const RS_PUB_KEY: &str = ".*";', 'pub const RS_PUB_KEY: &str = "' + "${{ secrets.RS_PUB_KEY }}" + '";'
+          
+          $newRendezvous = "pub const RENDEZVOUS_SERVERS: &[&str] = &[""$rendezvousServer""];"
+          $content = $content -replace 'pub const RENDEZVOUS_SERVERS: &\[&str\] = &\[.*\];', $newRendezvous
+
+          $newPubkey = "pub const RS_PUB_KEY: &str = ""$rsPubKey"";"
+          $content = $content -replace 'pub const RS_PUB_KEY: &str = ".*";', $newPubkey
+          
           Set-Content $filePath $content
           Get-Content $filePath
         shell: pwsh
