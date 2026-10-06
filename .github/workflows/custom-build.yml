@@ -17,10 +17,9 @@ jobs:
         run: |
           $filePath = "libs/hbb_common/src/config.rs"
           $content = Get-Content $filePath -Raw
-          $content = $content -replace 'pub const RENDEZVOUS_SERVERS: &\[&str\] = &\[.*\];', "pub const RENDEZVOUS_SERVERS: &[&str] = &[\"${{ secrets.RENDEZVOUS_SERVER }}\"];"
-          $content = $content -replace 'pub const RS_PUB_KEY: &str = ".*";', "pub const RS_PUB_KEY: &str = `"${{ secrets.RS_PUB_KEY }}`";"
+          $content = $content -replace 'pub const RENDEZVOUS_SERVERS: &\[&str\] = &\[.*\];', 'pub const RENDEZVOUS_SERVERS: &[&str] = &["' + "${{ secrets.RENDEZVOUS_SERVER }}" + '"];'
+          $content = $content -replace 'pub const RS_PUB_KEY: &str = ".*";', 'pub const RS_PUB_KEY: &str = "' + "${{ secrets.RS_PUB_KEY }}" + '";'
           Set-Content $filePath $content
-          # 打印出来校验替换结果
           Get-Content $filePath
         shell: pwsh
 
