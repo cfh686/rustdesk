@@ -11,18 +11,15 @@ jobs:
       - name: Checkout source & pull submodules
         uses: actions/checkout@v4
         with:
-          submodules: recursive # 必须开启，拉取hbb_common子模块
+          submodules: recursive
 
       - name: Inject custom server & public key
         run: |
           cd libs/hbb_common/src
-          # 替换ID服务器
-          sed -i "s#pub const RENDEZVOUS_SERVERS: &\[&str\] = &\[.*\];#pub const RENDEZVOUS_SERVERS: &[&str] = &[\"${{ secrets.RENDEZVOUS_SERVER }}\"];#g" config.rs
-          # 替换公钥KEY
-          sed -i "s#pub const RS_PUB_KEY: &str = \".*\";#pub const RS_PUB_KEY: &str = \"${{ secrets.RS_PUB_KEY }}\";#g" config.rs
+          sed -i "s#pub const RENDEZVOUS_SERVERS: &\[&str\] = &\[.*\];#pub const RENDEZVOUS_SERVERS: &[&str] = &[\"${{ secrets.RENDEZVOUS_SERVER }}\"];#g" config.rs || true
+          sed -i "s#pub const RS_PUB_KEY: &str = \".*\";#pub const RS_PUB_KEY: &str = \"${{ secrets.RS_PUB_KEY }}\";#g" config.rs || true
         shell: bash
 
-      # ========== 下面是官方原版Flutter CI编译流程 ==========
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -39,6 +36,7 @@ jobs:
 
       - name: Build RustDesk
         run: |
+          cd flutter
           flutter pub get
           flutter build windows --release
 
@@ -46,4 +44,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rustdesk-win-custom
-          path: build/windows/x64/runner/Release/
+          path: flutter/build/windows/x64/runner/Release/
